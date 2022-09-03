@@ -1,4 +1,5 @@
 ﻿using dotNetWithMongo.Api.Controllers.Inputs;
+using dotNetWithMongo.Api.Data.Repositories;
 using dotNetWithMongo.Api.Domain.Entities;
 using dotNetWithMongo.Api.Domain.Enums;
 using dotNetWithMongo.Api.Domain.ValueObjects;
@@ -10,15 +11,15 @@ namespace dotNetWithMongo.Api.Controller
     [ApiController]
     public class RestauranteController : ControllerBase
     {
-        private readonly IRestauranteRepository _restauranteRepository;
+        private readonly RestauranteRepository _restauranteRepository;
 
-        public RestauranteController()
+        public RestauranteController(RestauranteRepository restauranteRepository)
         {
-
+            _restauranteRepository = restauranteRepository;
         }
 
         [HttpPost("restaurante")]
-        public IActionResult IncluirRestaurante([FromBody] RestauranteInclusao restauranteInclusao)
+        public ActionResult IncluirRestaurante([FromBody] RestauranteInclusao restauranteInclusao)
         {
             var cozinha = ECozinhaHelper.ConverterDeInteiro(restauranteInclusao.Cozinha);
 
