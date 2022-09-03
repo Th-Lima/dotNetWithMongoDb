@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace dotNetWithMongo.Api.Domain.Enums
 {
@@ -15,10 +16,16 @@ namespace dotNetWithMongo.Api.Domain.Enums
     {
         public static ECozinha ConverterDeInteiro(int valor)
         {
-            if(Enum.TryParse(valor.ToString(), out ECozinha cozinha))
-                return cozinha;
+            var enumValues = Enum.GetValues(typeof(ECozinha)).Cast<int>().ToList();
 
-            throw new ArgumentOutOfRangeException(nameof(cozinha));
+            if (enumValues.Contains(valor))
+            {
+                var cozinha = (ECozinha)valor;
+                
+                return cozinha;
+            }
+            else
+                throw new ArgumentOutOfRangeException(nameof(valor), valor, "Esta cozinha não existe");
         }
     }
 }
