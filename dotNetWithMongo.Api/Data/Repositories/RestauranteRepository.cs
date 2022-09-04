@@ -13,10 +13,12 @@ namespace dotNetWithMongo.Api.Data.Repositories
     public class RestauranteRepository
     {
         IMongoCollection<RestauranteSchema> _restaurantes;
+        IMongoCollection<AvaliacaoSchema> _avaliacoes;
 
         public RestauranteRepository(MongoDb mongoDb)
         {
             _restaurantes = mongoDb.Db.GetCollection<RestauranteSchema>("restaurantes");
+            _avaliacoes = mongoDb.Db.GetCollection<AvaliacaoSchema>("avaliacoes");
         }
 
         public void Inserir(Restaurante restaurante)
@@ -102,6 +104,19 @@ namespace dotNetWithMongo.Api.Data.Repositories
             var resultado = _restaurantes.UpdateOne(_ => _.Id == id, atualizacao);
 
             return resultado.ModifiedCount > 0;
+        }
+
+        public void Avaliar(string restauranteId, Avaliacao avaliacao)
+        {
+            var document = new AvaliacaoSchema
+            {
+                RestauranteId = restauranteId,
+                Estrelas = avaliacao.Estrelas,
+                Comentario = avaliacao.Comentario,
+                NomeRestaurante = avaliacao.NomeRestaurante,
+            };
+
+            _avaliacoes.InsertOne(document);
         }
     }
 }

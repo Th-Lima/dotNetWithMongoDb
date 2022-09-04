@@ -1,12 +1,12 @@
-﻿using dotNetWithMongo.Api.Controllers.Inputs;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using dotNetWithMongo.Api.Controllers.Inputs;
 using dotNetWithMongo.Api.Controllers.Outputs;
 using dotNetWithMongo.Api.Data.Repositories;
 using dotNetWithMongo.Api.Domain.Entities;
 using dotNetWithMongo.Api.Domain.Enums;
 using dotNetWithMongo.Api.Domain.ValueObjects;
-using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace dotNetWithMongo.Api.Controller
 {
@@ -182,6 +182,32 @@ namespace dotNetWithMongo.Api.Controller
             return Ok(new
             {
                 data = $"Restaurante alterado com sucesso!! RESTAURANTE: {restaurante.Nome}"
+            });
+        }
+
+        [HttpPatch("restaurante/{id}/avaliar")]
+        public ActionResult Avaliar(string id, [FromBody] AvaliacaoInclusao avaliacaoInclusao)
+        {
+            var restaurante = _restauranteRepository.ObterPorId(id);
+
+            if(restaurante == null)
+                return NotFound("Não encontramos este restaurante");
+
+            var avaliacao = new Avaliacao(avaliacaoInclusao.Estrelas, avaliacaoInclusao.Comentario, restaurante.Nome);
+
+            if (!avaliacao.Validar())
+            {
+                return BadRequest(new
+                {
+                    errors = avaliacao.ValidationResult.Errors.Select(_ => _.ErrorMessage)
+                });
+            }
+
+            _restauranteRepository.Avaliar(id, avaliacao);
+
+            return Ok(new
+            {
+                data = $"Restaurante {restaurante.Nome} avaliado com sucesso!"
             });
         }
     }
