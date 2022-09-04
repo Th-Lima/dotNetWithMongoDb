@@ -2,7 +2,6 @@
 using dotNetWithMongo.Api.Domain.ValueObjects;
 using FluentValidation;
 using FluentValidation.Results;
-using System.Drawing;
 
 namespace dotNetWithMongo.Api.Domain.Entities
 {

@@ -40,7 +40,7 @@ namespace dotNetWithMongo.Api.Domain.ValueObjects
 
         private void ValidarCep()
         {
-            RuleFor(c => c.UF)
+            RuleFor(c => c.Cep)
                .NotEmpty().WithMessage("Cep não pode ser vazio")
                .MaximumLength(8).WithMessage("Cep pode ter no máximo 8 caractes");
         }
@@ -49,7 +49,7 @@ namespace dotNetWithMongo.Api.Domain.ValueObjects
         {
             RuleFor(c => c.UF)
                 .NotEmpty().WithMessage("UF não pode ser vazio")
-                .MaximumLength(2).WithMessage("Cidade pode ter no máximo 2 caractes");
+                .MaximumLength(2).WithMessage("UF pode ter no máximo 2 caractes");
         }
 
         private void ValidarCidade()
