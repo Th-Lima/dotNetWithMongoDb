@@ -12,8 +12,8 @@ namespace dotNetWithMongo.Api.Data.Repositories
 {
     public class RestauranteRepository
     {
-        IMongoCollection<RestauranteSchema> _restaurantes;
-        IMongoCollection<AvaliacaoSchema> _avaliacoes;
+        private readonly  IMongoCollection<RestauranteSchema> _restaurantes;
+        private readonly IMongoCollection<AvaliacaoSchema> _avaliacoes;
 
         public RestauranteRepository(MongoDb mongoDb)
         {
@@ -117,6 +117,30 @@ namespace dotNetWithMongo.Api.Data.Repositories
             };
 
             _avaliacoes.InsertOne(document);
+        }
+
+        public async Task<Dictionary<Restaurante, double>> ObterTopTres()
+        {
+            var resultado = new Dictionary<Restaurante, double>();
+
+            var topTres = _avaliacoes.Aggregate()
+                .Group(_ => _.RestauranteId, g => new { RestauranteId = g.Key, MediaEstrelas = g.Average(a => a.Estrelas) })
+                .SortByDescending(_ => _.MediaEstrelas)
+                .Limit(3);
+
+            await topTres.ForEachAsync(_ =>
+            {
+                var restaurante = ObterPorId(_.RestauranteId);
+                
+                _avaliacoes.AsQueryable()
+                .Where(a => a.RestauranteId == _.RestauranteId)
+                .ToList()
+                .ForEach(a => restaurante.InserirAvaliacao(a.ConverterParaDomain()));
+
+                resultado.Add(restaurante, _.MediaEstrelas);
+            });
+
+            return resultado;
         }
     }
 }

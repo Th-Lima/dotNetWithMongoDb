@@ -2,6 +2,7 @@
 using dotNetWithMongo.Api.Domain.ValueObjects;
 using FluentValidation;
 using FluentValidation.Results;
+using System.Collections.Generic;
 
 namespace dotNetWithMongo.Api.Domain.Entities
 {
@@ -15,6 +16,8 @@ namespace dotNetWithMongo.Api.Domain.Entities
 
         public Endereco Endereco { get; private set; }
 
+        public List<Avaliacao> Avaliacoes { get; private set; }
+
         public ValidationResult ValidationResult { get; set; }
 
         public Restaurante(string id, string nome, ECozinha cozinha)
@@ -22,17 +25,24 @@ namespace dotNetWithMongo.Api.Domain.Entities
             Id = id;
             Nome = nome;
             Cozinha = cozinha;
+            Avaliacoes = new List<Avaliacao>();
         }
 
         public Restaurante(string nome, ECozinha cozinha)
         {
             Nome = nome;
             Cozinha = cozinha;
+            Avaliacoes = new List<Avaliacao>();
         }
 
         public void AtribuirEndereco(Endereco endereco)
         {
             Endereco = endereco;
+        }
+
+        public void InserirAvaliacao(Avaliacao avaliacao)
+        {
+            Avaliacoes.Add(avaliacao);
         }
 
         public virtual bool Validar()

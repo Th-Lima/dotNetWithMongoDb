@@ -7,6 +7,7 @@ using dotNetWithMongo.Api.Data.Repositories;
 using dotNetWithMongo.Api.Domain.Entities;
 using dotNetWithMongo.Api.Domain.Enums;
 using dotNetWithMongo.Api.Domain.ValueObjects;
+using System;
 
 namespace dotNetWithMongo.Api.Controller
 {
@@ -38,12 +39,12 @@ namespace dotNetWithMongo.Api.Controller
             if (!restaurante.Validar())
             {
                 return BadRequest(
-                    new 
+                    new
                     {
-                        errors = restaurante.ValidationResult.Errors.Select(_ => _.ErrorMessage) 
+                        errors = restaurante.ValidationResult.Errors.Select(_ => _.ErrorMessage)
                     });
             }
-            
+
             _restauranteRepository.Inserir(restaurante);
 
             return Ok(new { data = "Restaurante inserido com sucesso" });
@@ -171,7 +172,7 @@ namespace dotNetWithMongo.Api.Controller
 
             var cozinha = ECozinhaHelper.ConverterDeInteiro(restauranteAlteracaoParcial.Cozinha);
 
-            if(!_restauranteRepository.AlterarCozinha(id, cozinha))
+            if (!_restauranteRepository.AlterarCozinha(id, cozinha))
             {
                 return BadRequest(new
                 {
@@ -190,7 +191,7 @@ namespace dotNetWithMongo.Api.Controller
         {
             var restaurante = _restauranteRepository.ObterPorId(id);
 
-            if(restaurante == null)
+            if (restaurante == null)
                 return NotFound("Não encontramos este restaurante");
 
             var avaliacao = new Avaliacao(avaliacaoInclusao.Estrelas, avaliacaoInclusao.Comentario, restaurante.Nome);
@@ -208,6 +209,27 @@ namespace dotNetWithMongo.Api.Controller
             return Ok(new
             {
                 data = $"Restaurante {restaurante.Nome} avaliado com sucesso!"
+            });
+        }
+
+        [HttpGet("restaurante/top3")]
+        public async Task<ActionResult> ObterTopTresRestaurantes()
+        {
+            var topTres = await _restauranteRepository.ObterTopTres();
+
+            var listagem = topTres.Select(_ => new RestauranteTopTres
+            {
+                Id = _.Key.Id,
+                Nome = _.Key.Nome,
+                Cidade = _.Key.Endereco.Cidade,
+                Cozinha = (int)_.Key.Cozinha,
+                Media_Estrelas_Nota = Math.Round(_.Value, 1),
+                Comentarios = _.Key.Avaliacoes.Select(x => x.Comentario).ToList()
+            });
+
+            return Ok(new
+            {
+                data = listagem
             });
         }
     }
