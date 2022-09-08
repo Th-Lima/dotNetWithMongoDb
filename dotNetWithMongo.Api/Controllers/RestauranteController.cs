@@ -232,5 +232,21 @@ namespace dotNetWithMongo.Api.Controller
                 data = listagem
             });
         }
+
+        [HttpDelete("restaurante/{id}")]
+        public ActionResult Remover(string id)
+        {
+            var restaurante = _restauranteRepository.ObterPorId(id);
+
+            if (restaurante == null)
+                return NotFound("Não encontramos este restaurante");
+
+            (var totalRestauranteRemovido, var totalAvaliacoesRemovidas) = _restauranteRepository.Remover(id);
+
+            return Ok(new
+            {
+                data = $"Total de exclusões: {totalRestauranteRemovido} restaurantes com {totalAvaliacoesRemovidas} avaliações"
+            });
+        }
     }
 }
