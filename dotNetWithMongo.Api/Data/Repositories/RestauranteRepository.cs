@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using dotNetWithMongo.Api.Extensions;
 using dotNetWithMongo.Api.Domain.Enums;
+using MongoDB.Driver.Linq;
 
 namespace dotNetWithMongo.Api.Data.Repositories
 {
@@ -149,6 +150,20 @@ namespace dotNetWithMongo.Api.Data.Repositories
             var resultadoRestaurante = _restaurantes.DeleteOne(_ => _.Id == restauranteId);
 
             return (resultadoRestaurante.DeletedCount, resultadoAvaliacoes.DeletedCount);
+        }
+
+        public async Task<IEnumerable<Restaurante>> ObterBuscaPorTexto(string texto)
+        {
+            var restaurantes = new List<Restaurante>();
+
+            var filter = Builders<RestauranteSchema>.Filter.Text(texto);
+
+            await _restaurantes
+                .AsQueryable()
+                .Where(_ => filter.Inject())
+                .ForEachAsync(d => restaurantes.Add(d.ConverterParaDomain()));
+
+            return restaurantes;
         }
     }
 }
