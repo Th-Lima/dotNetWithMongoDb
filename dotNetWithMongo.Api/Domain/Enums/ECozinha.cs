@@ -16,16 +16,10 @@ namespace dotNetWithMongo.Api.Domain.Enums
     {
         public static ECozinha ConverterDeInteiro(int valor)
         {
-            var enumValues = Enum.GetValues(typeof(ECozinha)).Cast<int>().ToList();
+            if (Enum.IsDefined(typeof(ECozinha), valor))
+                return (ECozinha)valor;
 
-            if (enumValues.Contains(valor))
-            {
-                var cozinha = (ECozinha)valor;
-                
-                return cozinha;
-            }
-            else
-                throw new ArgumentOutOfRangeException(nameof(valor), valor, "Esta cozinha não existe");
+            throw new ArgumentOutOfRangeException(nameof(valor), valor, "Esta cozinha não existe");
         }
     }
 }
